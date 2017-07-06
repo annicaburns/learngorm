@@ -1,6 +1,6 @@
 package main
 
-import "annicaburns.com/helloGORM/relationships"
+import "github.com/annicaburns/learngorm/relationships"
 
 func main() {
 	// dbSchema.BasicMethods()

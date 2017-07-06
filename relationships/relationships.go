@@ -21,15 +21,15 @@ func BasicRelationships() {
 	db.CreateTable(&Appointment{})
 	db.DropTableIfExists(&Calendar{})
 	db.CreateTable(&Calendar{})
-	db.DropTableIfExists(&User{})
-	db.CreateTable(&User{})
+	db.DropTableIfExists(&RelationshipUser{})
+	db.CreateTable(&RelationshipUser{})
 
 	// .Debug method logs the SQL statements as they are being made
 
 	db.Debug().Model(&Calendar{}).
-		AddForeignKey("user_id", "users(id)", "CASCADE", "CASCADE")
+		AddForeignKey("relationship_user_id", "relationship_users(id)", "CASCADE", "CASCADE")
 
-	db.Debug().Save(&User{
+	db.Debug().Save(&RelationshipUser{
 		Username: "adent",
 		Calendar: Calendar{
 			Name: "Improbable Events",
@@ -51,25 +51,25 @@ func BasicRelationships() {
 
 }
 
-// User is used to demonstrate relationship stuff
-type User struct {
+// RelationshipUser is used to demonstrate relationship stuff
+type RelationshipUser struct {
 	gorm.Model
 	Username  string
 	FirstName string
 	LastName  string
-	// This embedded Calendar object, along with the UserID field in the Calendar table establishes a HasOne relationship (one-to-one)
-	// If we want an OwnedBy one-to-one relationship, add a CalendarID field here and remove the UserID field in the Calendar table
+	// This embedded Calendar object, along with the RelationshipUserID field in the Calendar table establishes a HasOne relationship (one-to-one)
+	// If we want an OwnedBy one-to-one relationship, add a CalendarID field here and remove the RelationshipUserID field in the Calendar table
 	Calendar Calendar
 }
 
-// Calendar is used to demonstrate a one-to-one relationship with User
+// Calendar is used to demonstrate a one-to-one relationship with RelationshipUser
 type Calendar struct {
 	gorm.Model
 	Name string
-	// Named this way, GORM can infer during inserts that this field is a foreign key for the User table
+	// Named this way, GORM can infer during inserts that this field is a foreign key for the RelationshipUser table
 	// But GORM won't automatically add a FK constraint >> That has to be explicitly added.
-	UserID       uint
-	Appointments []Appointment
+	RelationshipUserID uint
+	Appointments       []Appointment
 }
 
 // Appointment is used to demonstrate a many-to-one relationship with Calendar
@@ -82,5 +82,5 @@ type Appointment struct {
 	CalendarID  uint
 	// Creating a many-to-many relationship by specifying the name of the lookup table that we want GORM to create.
 	// In this case: "appointment_user"
-	Attendees []User `gorm:"many2many:appoinment_user"`
+	Attendees []RelationshipUser `gorm:"many2many:appoinment_user"`
 }

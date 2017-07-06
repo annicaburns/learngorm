@@ -30,11 +30,11 @@ func BasicMethods() {
 	}
 	defer db.Close()
 
-	db.DropTableIfExists(&User{})
-	db.CreateTable(&User{})
+	db.DropTableIfExists(&BasicUser{})
+	db.CreateTable(&BasicUser{})
 
-	for _, user := range users {
-		db.Create(&user)
+	for _, basicUser := range basicUsers {
+		db.Create(&basicUser)
 	}
 
 	// u := User{Username: "tmacmillan"}
@@ -70,8 +70,8 @@ func CustomizationMethods() {
 // 	return "alternate_name"
 // }
 
-// User is our user object
-type User struct {
+// BasicUser is our BasicUser object
+type BasicUser struct {
 	// If a field is named "ID" gorm will interpret this as a primary key and will make it auto-incrementing and create the PK constratints
 	// ID uint
 	// Or use an field name with the gorm "primary_key" tag
@@ -100,12 +100,12 @@ type User struct {
 	// To add a unique constratint
 }
 
-var users = []User{
-	User{Username: "adent", FirstName: "Arthur", LastName: "Dent"},
-	User{Username: "fprefect", FirstName: "Ford", LastName: "Prefect"},
-	User{Username: "tmacmillan", FirstName: "Tricia", LastName: "Macmillan"},
-	User{Username: "mrobot", FirstName: "Marvin", LastName: "Robot"},
-	User{Username: "smith", LastName: "Smith"},
+var basicUsers = []BasicUser{
+	BasicUser{Username: "adent", FirstName: "Arthur", LastName: "Dent"},
+	BasicUser{Username: "fprefect", FirstName: "Ford", LastName: "Prefect"},
+	BasicUser{Username: "tmacmillan", FirstName: "Tricia", LastName: "Macmillan"},
+	BasicUser{Username: "mrobot", FirstName: "Marvin", LastName: "Robot"},
+	BasicUser{Username: "smith", LastName: "Smith"},
 }
 
 // EmbedChildObjects demonstrates embedding child objects
