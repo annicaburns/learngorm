@@ -7,6 +7,6 @@ func main() {
 	// dbSchema.EmbedChildObjects()
 	// relationships.BasicRelationships()
 	// relationships.ModelAssociationMethod()
-	crud.CreateWithChildRecords()
-
+	// crud.CreateWithChildRecords()
+	crud.UpdateRecords()
 }
