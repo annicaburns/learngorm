@@ -3,12 +3,11 @@ package relationships
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
-
-	// anonymous import - package just needs to initialize in order to establish itself as a database driver
-
 	"time"
 
+	"github.com/jinzhu/gorm"
+
+	// Anonymous import - package just needs to initialize in order to establish itself as a database driver
 	_ "github.com/go-sql-driver/mysql"
 )
 

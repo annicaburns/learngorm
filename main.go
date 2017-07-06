@@ -1,11 +1,12 @@
 package main
 
-import "github.com/annicaburns/learngorm/relationships"
+import "github.com/annicaburns/learngorm/crud"
 
 func main() {
 	// dbSchema.BasicMethods()
 	// dbSchema.EmbedChildObjects()
 	// relationships.BasicRelationships()
-	relationships.ModelAssociationMethod()
+	// relationships.ModelAssociationMethod()
+	crud.CreateWithChildRecords()
 
 }

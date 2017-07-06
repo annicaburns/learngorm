@@ -29,7 +29,8 @@ func BasicMethods() {
 		panic(err.Error())
 	}
 	defer db.Close()
-
+	// NOTE that droping and creating tables is ONLY useful for this demo where we are constantly changing schema
+	// GORM is generally not used to create the schema - just to reflect it
 	db.DropTableIfExists(&BasicUser{})
 	db.CreateTable(&BasicUser{})
 
