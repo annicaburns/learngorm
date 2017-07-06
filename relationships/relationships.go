@@ -1,6 +1,8 @@
 package relationships
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 
 	// anonymous import - package just needs to initialize in order to establish itself as a database driver
@@ -67,6 +69,28 @@ func BasicRelationships() {
 	// fmt.Println()
 	// fmt.Println(c)
 
+}
+
+// ModelAssociationMethod demonstrates capabilities of the Model function's Association Method
+func ModelAssociationMethod() {
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	BasicRelationships()
+
+	// The parameter for the Association method scopes subsequent code to the named field of the scoped table (Calendar in this case)
+	db.Model(&Calendar{}).Association("Appointments")
+	appointments := []Appointment{}
+	db.Find(&appointments)
+	fmt.Println(appointments)
+	// .Find(&appointments)
+	// .Append(&appointments)
+	// .Delete(&appointments)
+	// .Replace(&appointments)
+	// .Count()
+	// .Clear()
 }
 
 // RelationshipUser is used to demonstrate relationship stuff
