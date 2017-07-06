@@ -25,6 +25,8 @@ func BasicRelationships() {
 	db.CreateTable(&Calendar{})
 	db.DropTableIfExists(&RelationshipUser{})
 	db.CreateTable(&RelationshipUser{})
+	db.DropTableIfExists(&TaskList{})
+	db.CreateTable(&TaskList{})
 	// .Debug method logs the SQL statements as they are being made
 	db.Debug().Model(&Calendar{}).
 		AddForeignKey("relationship_user_id", "relationship_users(id)", "CASCADE", "CASCADE")
@@ -45,6 +47,13 @@ func BasicRelationships() {
 			Appointments: []Appointment{
 				{Subject: "Spontaneous Whale Generation", Description: "easy", StartTime: time.Now(), Attendees: users},
 				{Subject: "Saved from Vacuum of Space", Description: "hard", StartTime: time.Now(), Attendees: users},
+			},
+		},
+		TaskList: TaskList{
+			Name: "Urgent ToDos",
+			Appointments: []Appointment{
+				{Subject: "Submit Expenses", Description: "easy", StartTime: time.Now()},
+				{Subject: "Jira Work", Description: "hard", StartTime: time.Now()},
 			},
 		},
 	})
@@ -69,6 +78,7 @@ type RelationshipUser struct {
 	// This embedded Calendar object, along with the RelationshipUserID field in the Calendar table establishes a HasOne relationship (one-to-one)
 	// If we want an OwnedBy one-to-one relationship, add a CalendarID field here and remove the RelationshipUserID field in the Calendar table
 	Calendar Calendar
+	TaskList TaskList
 }
 
 // Calendar is used to demonstrate a one-to-one relationship with RelationshipUser
@@ -78,7 +88,7 @@ type Calendar struct {
 	// Named this way, GORM can infer during inserts that this field is a foreign key for the RelationshipUser table
 	// But GORM won't automatically add a FK constraint >> That has to be explicitly added.
 	RelationshipUserID uint
-	Appointments       []Appointment
+	Appointments       []Appointment `gorm:"polymorphic:owner"`
 }
 
 // Appointment is used to demonstrate a many-to-one relationship with Calendar
@@ -88,8 +98,18 @@ type Appointment struct {
 	Description string
 	StartTime   time.Time
 	Length      uint
-	CalendarID  uint
+	// Go's version of polymorphism. This allows us to map EITHER the id of a Calendar OR the id of a TaskList into the same field
+	OwnerID   uint
+	OwnerType string
 	// Creating a many-to-many relationship by specifying the name of the lookup table that we want GORM to create.
 	// In this case: "appointment_user"
 	Attendees []RelationshipUser `gorm:"many2many:appoinment_user"`
+}
+
+// TaskList is a second container for Appointments - demonstrating Go's version of polymorphism
+type TaskList struct {
+	gorm.Model
+	Name               string
+	RelationshipUserID uint
+	Appointments       []Appointment `gorm:"polymorphic:owner"`
 }
