@@ -1,18 +1,20 @@
 package relationships
 
 import (
-	"time"
-
 	"github.com/jinzhu/gorm"
 
 	// anonymous import - package just needs to initialize in order to establish itself as a database driver
+
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // BasicRelationships demonstrates some basic principles of relationships in GORM
 func BasicRelationships() {
-	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm")
+	// Need to include the ?parseTime=true parameter to connection string if you want the gorm model fields to update updated_at when anything related to the object changes
+	// https://github.com/jinzhu/gorm/issues/958
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -23,19 +25,26 @@ func BasicRelationships() {
 	db.CreateTable(&Calendar{})
 	db.DropTableIfExists(&RelationshipUser{})
 	db.CreateTable(&RelationshipUser{})
-
 	// .Debug method logs the SQL statements as they are being made
-
 	db.Debug().Model(&Calendar{}).
 		AddForeignKey("relationship_user_id", "relationship_users(id)", "CASCADE", "CASCADE")
 
-	db.Debug().Save(&RelationshipUser{
+	users := []RelationshipUser{
+		{Username: "fprefect"},
+		{Username: "tmacmillan"},
+		{Username: "mrobot"},
+	}
+	for i := range users {
+		db.Save(&users[i])
+	}
+	// Interestingly... as we add each appointment with it's associated list of users, the updated_at field of each user will get updated because something "related to the user" has changed.
+	db.Save(&RelationshipUser{
 		Username: "adent",
 		Calendar: Calendar{
 			Name: "Improbable Events",
 			Appointments: []Appointment{
-				{Subject: "Spontaneous Whale Generation", StartTime: time.Now()},
-				{Subject: "Saved from Vacuum of Space", StartTime: time.Now()},
+				{Subject: "Spontaneous Whale Generation", Description: "easy", StartTime: time.Now(), Attendees: users},
+				{Subject: "Saved from Vacuum of Space", Description: "hard", StartTime: time.Now(), Attendees: users},
 			},
 		},
 	})
