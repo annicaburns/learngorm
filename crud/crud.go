@@ -82,6 +82,36 @@ func UpdateRecords() {
 
 }
 
+// BatchUpdates demonstrates scoping to a particular table and making a bunch of updates
+func BatchUpdates() {
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	db.DropTableIfExists(&CruddyUser3{})
+	db.CreateTable(&CruddyUser3{})
+
+	db.Create(&CruddyUser3{
+		FirstName: "Tricia",
+		LastName:  "Dent",
+		Salary:    50000,
+	})
+
+	db.Create(&CruddyUser3{
+		FirstName: "Arthur",
+		LastName:  "Dent",
+		Salary:    30000,
+	})
+
+	// The Table method scopes calls to a particular table - but we must speak about things (and call things) from the database perspective
+	// The Model method uses the semantics (and naming) of GO
+	db.Table("cruddy_user3").Where("last_name = ?", "Dent").Update("last_name", "Macmillan-Dent")
+
+	db.Table("cruddy_user3").Where("salary > ?", 40000).Update("salary", gorm.Expr("salary + 5000"))
+
+}
+
 // CruddyUser is specific to this class file
 type CruddyUser struct {
 	gorm.Model
@@ -101,7 +131,7 @@ type CruddyAppointment struct {
 	Attendees    []*CruddyUser
 }
 
-// CruddyUser2 is specific to this class file
+// CruddyUser2 is used with the UpdateRecordsFunction
 type CruddyUser2 struct {
 	gorm.Model
 	FirstName string
@@ -120,4 +150,12 @@ func (user *CruddyUser2) BeforeUpdate() error {
 func (user *CruddyUser2) AfterUpdate() error {
 	println("After Update")
 	return nil
+}
+
+// CruddyUser3 is used with BatchUpdates function
+type CruddyUser3 struct {
+	gorm.Model
+	FirstName string
+	LastName  string
+	Salary    uint
 }

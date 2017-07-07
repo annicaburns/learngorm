@@ -8,5 +8,6 @@ func main() {
 	// relationships.BasicRelationships()
 	// relationships.ModelAssociationMethod()
 	// crud.CreateWithChildRecords()
-	crud.UpdateRecords()
+	// crud.UpdateRecords()
+	crud.BatchUpdates()
 }
