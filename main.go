@@ -1,6 +1,6 @@
 package main
 
-import "github.com/annicaburns/learngorm/crud"
+import "github.com/annicaburns/learngorm/query"
 
 func main() {
 	// dbSchema.BasicMethods()
@@ -12,5 +12,6 @@ func main() {
 	// crud.BatchUpdates()
 	// crud.DeleteRecords()
 	// crud.BatchDeletes()
-	crud.Transactions()
+	// crud.Transactions()
+	query.RetrieveSimple()
 }
