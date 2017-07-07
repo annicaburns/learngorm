@@ -70,7 +70,15 @@ func RetrieveSimple() {
 	// Not method - The Where clause is only looking for positive matches, so use the Not method for the reverse
 	// db.Not("username = ?", "adent").Find(&users)
 	// Or method. Chain this on to a where clause to combine two different fetches
-	db.Where("username = ?", "fprefect").Or("username = ?", "tmacmillan").Find(&users)
+	// db.Where("username = ?", "fprefect").Or("username = ?", "tmacmillan").Find(&users)
+
+	// Gorm defaults to lazy loading to prefer speed over convenience
+	// Preload method indicates to gorm which child objects we want to inflate (load)
+	// db.Preload("CalendarQuery").Find(&users)
+	// Can take this as deep into the object graph as desired
+	// Just make sure any preloaded fields are indexed or the query will be very slow
+	// Also note in the console dump that the AppointmentQueries - which are being stored as pointers - print out the memory address
+	db.Preload("CalendarQuery.AppointmentQuerys").Find(&users)
 
 	for _, user := range users {
 		// This will print the user object data but will not inflate the child calendar objects
