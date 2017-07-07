@@ -11,5 +11,6 @@ func main() {
 	// crud.UpdateRecords()
 	// crud.BatchUpdates()
 	// crud.DeleteRecords()
-	crud.BatchDeletes()
+	// crud.BatchDeletes()
+	crud.Transactions()
 }

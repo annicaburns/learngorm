@@ -177,6 +177,37 @@ func BatchDeletes() {
 
 }
 
+// Transactions demonstrates the obvious
+func Transactions() {
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	db.DropTableIfExists(&CruddyUser2{})
+	db.CreateTable(&CruddyUser2{})
+
+	user := CruddyUser2{
+		FirstName: "Marvin",
+		LastName:  "Robot",
+	}
+
+	// Create a transaction object
+	transaction := db.Begin()
+
+	if err = transaction.Create(&user).Error; err != nil {
+		transaction.Rollback()
+	}
+
+	user.LastName = "The Happy Robot"
+	// Intentionally rollback the transaction
+	if err = transaction.Save(&user).Error; err == nil {
+		transaction.Rollback()
+	}
+
+	transaction.Commit()
+}
+
 // CruddyUser is specific to this class file
 type CruddyUser struct {
 	gorm.Model
