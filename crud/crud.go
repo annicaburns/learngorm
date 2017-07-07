@@ -112,6 +112,71 @@ func BatchUpdates() {
 
 }
 
+// DeleteRecords demonstrates hard and soft deletes
+func DeleteRecords() {
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	db.DropTableIfExists(&CruddyUser4{})
+	db.CreateTable(&CruddyUser4{})
+	db.DropTableIfExists(&CruddyUser2{})
+	db.CreateTable(&CruddyUser2{})
+
+	// Note that the CruddyUser4 model has an ID field instead of the GORM model fields - a hard delete will occur
+	user := CruddyUser4{
+		FirstName: "Ford",
+		LastName:  "Prefect",
+	}
+
+	db.Create(&user)
+
+	// By passing in the user object, GORM is smart enough to write a SQL statement based on the properties on that user object
+	// In this case it will know that we are using an object with an ID field and it's where clause will use the ID
+	db.Debug().Delete(&user)
+
+	// A soft delete will happen here because we are deleting a model object that includes the GORM model fields instead of an ID field
+	modelUser := CruddyUser2{
+		FirstName: "Ford",
+		LastName:  "Prefect",
+	}
+
+	db.Create(&modelUser)
+	db.Debug().Delete(&modelUser)
+
+	// GORM considers this soft deleted record as truly deleted and will not return it from most queries
+	user2 := CruddyUser2{}
+	db.First(&user2)
+	fmt.Println()
+	fmt.Println(user2)
+
+}
+
+// BatchDeletes demonstrates the obvious
+func BatchDeletes() {
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	db.DropTableIfExists(&CruddyUser2{})
+	db.CreateTable(&CruddyUser2{})
+
+	db.Create(&CruddyUser2{
+		FirstName: "Tricia",
+		LastName:  "Macmillan-Dent",
+	})
+
+	db.Create(&CruddyUser2{
+		FirstName: "Arthur",
+		LastName:  "Dent",
+	})
+
+	db.Where("last_name LIKE ?", "Mac%").Delete(&CruddyUser2{})
+
+}
+
 // CruddyUser is specific to this class file
 type CruddyUser struct {
 	gorm.Model
@@ -158,4 +223,11 @@ type CruddyUser3 struct {
 	FirstName string
 	LastName  string
 	Salary    uint
+}
+
+// CruddyUser4 is used with DeleteRecords function
+type CruddyUser4 struct {
+	ID        uint
+	FirstName string
+	LastName  string
 }
