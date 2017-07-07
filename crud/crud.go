@@ -107,3 +107,17 @@ type CruddyUser2 struct {
 	FirstName string
 	LastName  string
 }
+
+// BeforeUpdate method is a built in callback that fires before the .Save, .Update and .Updates methods are called
+// Use .Update or .UpdateColumns if we DON'T want to trigger these callbacks - these methods don't fire them
+func (user *CruddyUser2) BeforeUpdate() error {
+	fmt.Println("Before Update")
+
+	return nil
+}
+
+// AfterUpdate method is the same, just firing right after the updates occur
+func (user *CruddyUser2) AfterUpdate() error {
+	println("After Update")
+	return nil
+}
