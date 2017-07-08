@@ -43,7 +43,7 @@ func RetrieveSimple() {
 	// fmt.Println(user)
 
 	// Using the Find method to select multiple records (recordsets)
-	users := []UserQuery{}
+	// users := []UserQuery{}
 	// Find method can be called with just the first parameter
 	// db.Find(&users)
 	// Or with the second optional where clause parameter
@@ -78,14 +78,53 @@ func RetrieveSimple() {
 	// Can take this as deep into the object graph as desired
 	// Just make sure any preloaded fields are indexed or the query will be very slow
 	// Also note in the console dump that the AppointmentQueries - which are being stored as pointers - print out the memory address
-	db.Preload("CalendarQuery.AppointmentQuerys").Find(&users)
+	// db.Preload("CalendarQuery.AppointmentQuerys").Find(&users)
 
-	for _, user := range users {
-		// This will print the user object data but will not inflate the child calendar objects
-		// Gorm is lazy about what it loads and will only inflate child objects if explicitly requested
-		// The empty calendar object will show up after each user in the console
-		fmt.Printf("\n%v\n", user)
-	}
+	// Limiting and ordering data
+	// Keep in mind that .Find is always called AFTER the constraints are described. It basically says "ok, Gorm, go do something"
+	// Limit method is like top
+	// db.Limit(2).Find(&users)
+	// Order method can be combine with Limit
+	// db.Limit(3).Order("first_name").Find(&users)
+	// To use pagination, we also need to use offset. Remember all shaping statements need to come before .Find.
+	// The order of the "shapers" (Limit and Offset in this case) doesn't matter
+	// db.Limit(2).Offset(2).Order("first_name").Find(&users)
+
+	// Selecting Data Subsets - inflating only certain properties in a returned object
+	// Select method takes a slice of strings that indicate the properties desired
+	// Be judicious with Select because it confuses end users of the API and quickly becomes a maintenance problem
+	// db.Select([]string{"first_name", "last_name"}).Find(&users)
+
+	// for _, user := range users {
+	// This will print the user object data but will not inflate the child calendar objects
+	// Gorm is lazy about what it loads and will only inflate child objects if explicitly requested
+	// The empty calendar object will show up after each user in the console
+	// 	fmt.Printf("\n%v\n", user)
+	// }
+
+	// Plucking is used to select certain object properties and store them into a structure
+	/*
+		usernames := []string{}
+		db.Model(&UserQuery{}).Pluck("username", &usernames)
+		for _, username := range usernames {
+			fmt.Printf("\n%v\n", username)
+		}
+	*/
+	// Can also dynamically load the plucked data into a new structure to make things more clear to the end user
+	// Use the Select method to select the fields
+	// Use Scan instead of Find in this case because Find expects a parameter that is directly mapped to an underlying table
+	/*
+		userVMs := []UserViewModel{}
+		db.Model(&UserQuery{}).Select([]string{"first_name", "last_name"}).Scan(&userVMs)
+		for _, user := range userVMs {
+			fmt.Printf("\n%v\n", user)
+		}
+	*/
+
+	// Count method lets you find out how many objects are in a table that meet a certain criteria without inflating all those objects
+	var userCount int
+	db.Model(&UserQuery{}).Count(&userCount)
+	fmt.Println(userCount)
 }
 
 // SeedDB can be used from any package
@@ -199,4 +238,10 @@ type AppointmentQuery struct {
 	Length          uint
 	CalendarQueryID uint
 	Attendees       []*UserQuery `gorm:"many2many:appointment_query_user_query"`
+}
+
+// UserViewModel is specific to this class file
+type UserViewModel struct {
+	FirstName string
+	LastName  string
 }
