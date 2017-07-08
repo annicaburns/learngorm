@@ -9,12 +9,11 @@ package query
 */
 
 import (
+	"fmt"
 	"time"
 
 	// Anonymous import - package just needs to initialize in order to establish itself as a database driver
 	_ "github.com/go-sql-driver/mysql"
-
-	"fmt"
 
 	"github.com/jinzhu/gorm"
 )
@@ -122,9 +121,24 @@ func RetrieveSimple() {
 	*/
 
 	// Count method lets you find out how many objects are in a table that meet a certain criteria without inflating all those objects
-	var userCount int
-	db.Model(&UserQuery{}).Count(&userCount)
-	fmt.Println(userCount)
+	/*
+		var userCount int
+		db.Model(&UserQuery{}).Count(&userCount)
+		fmt.Println(userCount)
+	*/
+
+	// Attrs method is for cases where you want to provide defaults or overide data without constraining the where clause
+	// Combine a Where method with a call to .Attrs to provide a default with which to inflate an object if .FirstOrInit finds nothing
+	/*
+		user := &UserQuery{}
+		db.Where("username = ?", "goober").Attrs(&UserQuery{FirstName: "Eddie", LastName: "Nothing"}).FirstOrInit(&user)
+		fmt.Printf("\n%v\n", user)
+	*/
+	// Assign method overides just specific properties
+	// But remember this is only in the application layer - didn't change anything in the underlying database
+	user := &UserQuery{}
+	db.Where("username = ?", "adent").Assign(&UserQuery{FirstName: "Eddie"}).FirstOrInit(&user)
+	fmt.Printf("\n%v\n", user)
 }
 
 // SeedDB can be used from any package
