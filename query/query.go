@@ -42,7 +42,7 @@ func RetrieveSimple() {
 	// fmt.Println(user)
 
 	// Using the Find method to select multiple records (recordsets)
-	// users := []UserQuery{}
+	users := []UserQuery{}
 	// Find method can be called with just the first parameter
 	// db.Find(&users)
 	// Or with the second optional where clause parameter
@@ -69,7 +69,21 @@ func RetrieveSimple() {
 	// Not method - The Where clause is only looking for positive matches, so use the Not method for the reverse
 	// db.Not("username = ?", "adent").Find(&users)
 	// Or method. Chain this on to a where clause to combine two different fetches
-	// db.Where("username = ?", "fprefect").Or("username = ?", "tmacmillan").Find(&users)
+	db.Where("username = ?", "fprefect").Or("username = ?", "tmacmillan").Find(&users)
+	fmt.Printf("\n%v\n", users)
+
+}
+
+// RetrieveAdvanced demonstrates some more advanced ways to select and join and deliver data
+func RetrieveAdvanced() {
+
+	// Only seed the database once
+	// SeedDB()
+
+	db, err := gorm.Open("mysql", "gorm:gorm@tcp(localhost:23306)/gorm?parseTime=true")
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// Gorm defaults to lazy loading to prefer speed over convenience
 	// Preload method indicates to gorm which child objects we want to inflate (load)
@@ -134,11 +148,23 @@ func RetrieveSimple() {
 		db.Where("username = ?", "goober").Attrs(&UserQuery{FirstName: "Eddie", LastName: "Nothing"}).FirstOrInit(&user)
 		fmt.Printf("\n%v\n", user)
 	*/
+
 	// Assign method overides just specific properties
 	// But remember this is only in the application layer - didn't change anything in the underlying database
-	user := &UserQuery{}
-	db.Where("username = ?", "adent").Assign(&UserQuery{FirstName: "Eddie"}).FirstOrInit(&user)
-	fmt.Printf("\n%v\n", user)
+	/*
+		user := &UserQuery{}
+		db.Where("username = ?", "adent").Assign(&UserQuery{FirstName: "Eddie"}).FirstOrInit(&user)
+		fmt.Printf("\n%v\n", user)
+	*/
+
+	// Join tables manually to select bits of data from up and down the object graph without fully inflating parent and child objects
+	userVM2s := []UserViewModel2{}
+	db.Model(&UserQuery{}).Joins("inner join calendar_queries on calendar_queries.user_query_id = user_queries.id").
+		Select("user_queries.first_name, user_queries.last_name, calendar_queries.name").
+		Scan(&userVM2s)
+	for _, userVM := range userVM2s {
+		fmt.Printf("\n%v\n", userVM)
+	}
 }
 
 // SeedDB can be used from any package
@@ -258,4 +284,11 @@ type AppointmentQuery struct {
 type UserViewModel struct {
 	FirstName string
 	LastName  string
+}
+
+// UserViewModel2 is specific to this class file
+type UserViewModel2 struct {
+	FirstName    string
+	LastName     string
+	CalendarName string `gorm:"column:name"`
 }

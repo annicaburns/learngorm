@@ -13,5 +13,6 @@ func main() {
 	// crud.DeleteRecords()
 	// crud.BatchDeletes()
 	// crud.Transactions()
-	query.RetrieveSimple()
+	// query.RetrieveSimple()
+	query.RetrieveAdvanced()
 }
