@@ -1,6 +1,6 @@
 package main
 
-import "github.com/annicaburns/learngorm/query"
+import "github.com/annicaburns/learngorm/advanced"
 
 func main() {
 	// dbSchema.BasicMethods()
@@ -14,5 +14,7 @@ func main() {
 	// crud.BatchDeletes()
 	// crud.Transactions()
 	// query.RetrieveSimple()
-	query.RetrieveAdvanced()
+	// query.RetrieveAdvanced()
+	// advanced.CallBacks()
+	advanced.Scope()
 }
