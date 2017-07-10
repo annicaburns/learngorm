@@ -184,14 +184,25 @@ func RetrieveAdvanced() {
 	*/
 
 	// Aggregations
-	rows, _ := db.Model(&AppointmentQuery{}).Select("calendar_query_id, sum(length) as total_length").
-		Group("calendar_query_id").Having("calendar_query_id = ?", 1).Rows()
+	/*
+		rows, _ := db.Model(&AppointmentQuery{}).Select("calendar_query_id, sum(length) as total_length").
+			Group("calendar_query_id").Having("calendar_query_id = ?", 1).Rows()
 
-	for rows.Next() {
-		var id, length int
-		rows.Scan(&id, &length)
-		fmt.Println(id, length)
+		for rows.Next() {
+			var id, length int
+			rows.Scan(&id, &length)
+			fmt.Println(id, length)
+		}
+	*/
+
+	// Using Raw SQL when all else fails
+	users := []UserQuery{}
+	db.Exec("SELECT * FROM user_queries").Find(&users)
+
+	for _, user := range users {
+		fmt.Printf("\n%v\n", user)
 	}
+
 }
 
 // SeedDB can be used from any package
