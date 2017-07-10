@@ -167,18 +167,30 @@ func RetrieveAdvanced() {
 	}
 	*/
 
-	// Work with Raw Result Rows for more control. Returns a set of rows (potentially) and an error. Ignoring the error for now.
-	userVM3s := []UserViewModel3{}
-	rows, _ := db.Model(&UserQuery{}).Joins("inner join calendar_queries on calendar_queries.user_query_id = user_queries.id").
-		Select("user_queries.first_name, user_queries.last_name, calendar_queries.name").
-		Rows()
+	/*
+		// Work with Raw Result Rows for more control. Returns a set of rows (potentially) and an error. Ignoring the error for now.
+		userVM3s := []UserViewModel3{}
+		rows, _ := db.Model(&UserQuery{}).Joins("inner join calendar_queries on calendar_queries.user_query_id = user_queries.id").
+			Select("user_queries.first_name, user_queries.last_name, calendar_queries.name").
+			Rows()
+		for rows.Next() {
+			uvm3 := UserViewModel3{}
+			rows.Scan(&uvm3.FirstName, &uvm3.LastName, &uvm3.CalendarName)
+			userVM3s = append(userVM3s, uvm3)
+		}
+		for _, userVM := range userVM3s {
+			fmt.Printf("\n%v\n", userVM)
+		}
+	*/
+
+	// Aggregations
+	rows, _ := db.Model(&AppointmentQuery{}).Select("calendar_query_id, sum(length) as total_length").
+		Group("calendar_query_id").Having("calendar_query_id = ?", 1).Rows()
+
 	for rows.Next() {
-		uvm3 := UserViewModel3{}
-		rows.Scan(&uvm3.FirstName, &uvm3.LastName, &uvm3.CalendarName)
-		userVM3s = append(userVM3s, uvm3)
-	}
-	for _, userVM := range userVM3s {
-		fmt.Printf("\n%v\n", userVM)
+		var id, length int
+		rows.Scan(&id, &length)
+		fmt.Println(id, length)
 	}
 }
 
