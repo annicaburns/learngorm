@@ -158,11 +158,26 @@ func RetrieveAdvanced() {
 	*/
 
 	// Join tables manually to select bits of data from up and down the object graph without fully inflating parent and child objects
-	userVM2s := []UserViewModel2{}
+	/*userVM2s := []UserViewModel2{}
 	db.Model(&UserQuery{}).Joins("inner join calendar_queries on calendar_queries.user_query_id = user_queries.id").
 		Select("user_queries.first_name, user_queries.last_name, calendar_queries.name").
 		Scan(&userVM2s)
 	for _, userVM := range userVM2s {
+		fmt.Printf("\n%v\n", userVM)
+	}
+	*/
+
+	// Work with Raw Result Rows for more control. Returns a set of rows (potentially) and an error. Ignoring the error for now.
+	userVM3s := []UserViewModel3{}
+	rows, _ := db.Model(&UserQuery{}).Joins("inner join calendar_queries on calendar_queries.user_query_id = user_queries.id").
+		Select("user_queries.first_name, user_queries.last_name, calendar_queries.name").
+		Rows()
+	for rows.Next() {
+		uvm3 := UserViewModel3{}
+		rows.Scan(&uvm3.FirstName, &uvm3.LastName, &uvm3.CalendarName)
+		userVM3s = append(userVM3s, uvm3)
+	}
+	for _, userVM := range userVM3s {
 		fmt.Printf("\n%v\n", userVM)
 	}
 }
@@ -291,4 +306,11 @@ type UserViewModel2 struct {
 	FirstName    string
 	LastName     string
 	CalendarName string `gorm:"column:name"`
+}
+
+// UserViewModel3 is specific to this class file
+type UserViewModel3 struct {
+	FirstName    string
+	LastName     string
+	CalendarName string
 }
